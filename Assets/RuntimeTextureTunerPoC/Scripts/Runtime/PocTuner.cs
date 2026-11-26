@@ -59,7 +59,6 @@ namespace RuntimeTextureTuner
                 return;
             }
 
-            PocPropertyBlockSample.Apply(_targetRoot);
             CollectTextures();
 
             _buttonReader = new PocButtonReader();

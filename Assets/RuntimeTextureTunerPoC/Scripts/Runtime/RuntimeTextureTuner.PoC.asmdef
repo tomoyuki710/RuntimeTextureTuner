@@ -2,7 +2,8 @@
     "name": "RuntimeTextureTuner.PoC",
     "rootNamespace": "RuntimeTextureTuner",
     "references": [
-        "RuntimeTextureTuner.Core"
+        "RuntimeTextureTuner.Core",
+        "RuntimeTextureTuner.DevOnly"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

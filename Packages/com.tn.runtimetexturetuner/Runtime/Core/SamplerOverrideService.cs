@@ -21,6 +21,10 @@ namespace RuntimeTextureTuner
             public TextureSamplerSettings Original { get; }
 
             public TextureSamplerSettings Adjusted { get; set; }
+
+            public TextureSamplerSettings Kept { get; set; }
+
+            public bool HasKept { get; set; }
         }
 
         private readonly Dictionary<Texture, Entry> _entries = new Dictionary<Texture, Entry>();
@@ -99,6 +103,54 @@ namespace RuntimeTextureTuner
         }
 
         /// <summary>
+        /// 現在の調整値を採用予定（Keep）として記録する。テクスチャやアセットは書き換えない。
+        /// 調整値が元の値と同じ場合は、採用予定を取り消す。
+        /// </summary>
+        public bool TryKeep(Texture texture)
+        {
+            if (!TryGetEntry(texture, out Entry entry))
+            {
+                return false;
+            }
+
+            entry.Kept = entry.Adjusted;
+            entry.HasKept = !entry.Adjusted.Equals(entry.Original);
+            return true;
+        }
+
+        /// <summary>
+        /// 採用予定（Keep）の値を取得する。Keep されていない場合は false を返す。
+        /// </summary>
+        public bool TryGetKept(Texture texture, out TextureSamplerSettings kept)
+        {
+            if (!TryGetEntry(texture, out Entry entry) || !entry.HasKept)
+            {
+                kept = default;
+                return false;
+            }
+
+            kept = entry.Kept;
+            return true;
+        }
+
+        /// <summary>
+        /// 採用予定（Keep）になっているテクスチャの数。
+        /// </summary>
+        public int CountKept()
+        {
+            int count = 0;
+            foreach (Entry entry in _entries.Values)
+            {
+                if (entry.HasKept)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
         /// 表示する側を切り替え、管理している全テクスチャへ反映する。
         /// </summary>
         public void SetCompareMode(CompareMode compareMode)
@@ -124,6 +176,7 @@ namespace RuntimeTextureTuner
             }
 
             entry.Adjusted = entry.Original;
+            entry.HasKept = false;
             entry.Original.ApplyTo(texture);
             return true;
         }
@@ -138,6 +191,7 @@ namespace RuntimeTextureTuner
             {
                 Entry entry = _entries[texture];
                 entry.Adjusted = entry.Original;
+                entry.HasKept = false;
                 entry.Original.ApplyTo(texture);
             }
         }

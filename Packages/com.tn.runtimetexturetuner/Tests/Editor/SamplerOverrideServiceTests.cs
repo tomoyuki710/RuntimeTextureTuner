@@ -166,6 +166,76 @@ namespace RuntimeTextureTuner
             Assert.AreEqual(InitialSettings, TextureSamplerSettings.Capture(kept));
         }
 
+        [Test]
+        public void TryKeep_RecordsAdjustedWithoutChangingTexture()
+        {
+            Texture2D texture = CreateTexture();
+            var service = new SamplerOverrideService();
+            service.TrySetAdjusted(texture, AdjustedSettings);
+
+            bool isKept = service.TryKeep(texture);
+
+            Assert.IsTrue(isKept);
+            Assert.IsTrue(service.TryGetKept(texture, out TextureSamplerSettings kept));
+            Assert.AreEqual(AdjustedSettings, kept);
+            Assert.AreEqual(1, service.CountKept());
+            Assert.AreEqual(AdjustedSettings, TextureSamplerSettings.Capture(texture));
+        }
+
+        [Test]
+        public void TryKeep_KeepsValueWhenAdjustedChangesLater()
+        {
+            Texture2D texture = CreateTexture();
+            var service = new SamplerOverrideService();
+            service.TrySetAdjusted(texture, AdjustedSettings);
+            service.TryKeep(texture);
+
+            service.TrySetAdjusted(texture, new TextureSamplerSettings(1f, 1, FilterMode.Point));
+
+            service.TryGetKept(texture, out TextureSamplerSettings kept);
+            Assert.AreEqual(AdjustedSettings, kept);
+        }
+
+        [Test]
+        public void TryKeep_UnchangedValue_IsNotCountedAsKept()
+        {
+            Texture2D texture = CreateTexture();
+            var service = new SamplerOverrideService();
+            service.TryRegister(texture);
+
+            service.TryKeep(texture);
+
+            Assert.IsFalse(service.TryGetKept(texture, out _));
+            Assert.AreEqual(0, service.CountKept());
+        }
+
+        [Test]
+        public void Reset_ClearsKept()
+        {
+            Texture2D first = CreateTexture();
+            Texture2D second = CreateTexture();
+            var service = new SamplerOverrideService();
+            service.TrySetAdjusted(first, AdjustedSettings);
+            service.TrySetAdjusted(second, AdjustedSettings);
+            service.TryKeep(first);
+            service.TryKeep(second);
+
+            service.TryReset(first);
+            Assert.AreEqual(1, service.CountKept());
+
+            service.ResetAll();
+            Assert.AreEqual(0, service.CountKept());
+        }
+
+        [Test]
+        public void TryKeep_UnregisteredTexture_ReturnsFalse()
+        {
+            Texture2D texture = CreateTexture();
+            var service = new SamplerOverrideService();
+
+            Assert.IsFalse(service.TryKeep(texture));
+        }
+
         private Texture2D CreateTexture()
         {
             var texture = new Texture2D(8, 8, TextureFormat.RGBA32, true);

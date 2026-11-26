@@ -3,8 +3,8 @@ using UnityEngine;
 namespace RuntimeTextureTuner
 {
     /// <summary>
-    /// Phase 1 の実機検証用。PoC シーンが読み込まれたときだけ調整機能を起動する。
-    /// シーンには調整用のコンポーネントを保存せず、実行時に生成する。
+    /// PoC シーンが読み込まれたときに、サンプル用の準備をして調整機能を起動する。
+    /// 調整用ビルドでは調整機能が自動で起動するため、ここでの起動は Editor での確認用。
     /// </summary>
     public static class PocBootstrap
     {
@@ -16,10 +16,10 @@ namespace RuntimeTextureTuner
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void OnAfterSceneLoad()
         {
-            StartTuner();
+            StartSample();
         }
 
-        private static void StartTuner()
+        private static void StartSample()
         {
             GameObject targetRoot = GameObject.Find(TargetRootName);
             if (targetRoot == null)
@@ -27,9 +27,8 @@ namespace RuntimeTextureTuner
                 return;
             }
 
-            var tunerObject = new GameObject(nameof(PocTuner));
-            PocTuner tuner = tunerObject.AddComponent<PocTuner>();
-            tuner.Initialize(targetRoot.transform);
+            PocPropertyBlockSample.Apply(targetRoot.transform);
+            RuntimeTuner.EnsureStarted();
         }
     }
 }

@@ -154,3 +154,7 @@ crashlytics-build.properties
 # 個人用の作業記録とドキュメント
 /tasks/
 /docs/
+
+# Package Manager からインポートしたサンプル（各自でインポートする）
+/[Aa]ssets/Samples/
+/[Aa]ssets/Samples.meta
