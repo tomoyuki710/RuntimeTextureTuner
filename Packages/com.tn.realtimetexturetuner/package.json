@@ -1,9 +1,0 @@
-{
-  "name": "com.tn.realtimetexturetuner",
-  "version": "0.1.0",
-  "displayName": "Realtime Texture Tuner",
-  "description": "Realtime Texture Tuner.",
-  "unity": "6000.3",
-  "license": "MIT",
-  "dependencies": {}
-}

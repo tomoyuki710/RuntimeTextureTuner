@@ -1,8 +1,8 @@
 {
-    "name": "RealtimeTextureTuner.Editor",
-    "rootNamespace": "RealtimeTextureTuner",
+    "name": "RuntimeTextureTuner.Editor",
+    "rootNamespace": "RuntimeTextureTuner",
     "references": [
-        "RealtimeTextureTuner"
+        "RuntimeTextureTuner"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.tn.realtimetexturetuner": {
-      "version": "file:com.tn.realtimetexturetuner",
+    "com.tn.runtimetexturetuner": {
+      "version": "file:com.tn.runtimetexturetuner",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}

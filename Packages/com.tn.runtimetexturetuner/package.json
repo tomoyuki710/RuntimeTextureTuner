@@ -1,0 +1,9 @@
+{
+  "name": "com.tn.runtimetexturetuner",
+  "version": "0.1.0",
+  "displayName": "Runtime Texture Tuner",
+  "description": "Runtime Texture Tuner.",
+  "unity": "6000.3",
+  "license": "MIT",
+  "dependencies": {}
+}

@@ -1,16 +1,16 @@
-# RealtimeTextureTuner
+# RuntimeTextureTuner
 
-Unity パッケージ `com.tn.realtimetexturetuner` と、その開発用 Unity プロジェクトです。
+Unity パッケージ `com.tn.runtimetexturetuner` と、その開発用 Unity プロジェクトです。
 
 ## パッケージとして使う
 
 Unity の Package Manager で「Install package from git URL...」を選び、次の URL を入力します。
 
 ```
-https://github.com/tomoyuki710/RealtimeTextureTuner.git?path=/Packages/com.tn.realtimetexturetuner
+https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner
 ```
 
-詳細は [Packages/com.tn.realtimetexturetuner/README.md](Packages/com.tn.realtimetexturetuner/README.md) を参照してください。
+詳細は [Packages/com.tn.runtimetexturetuner/README.md](Packages/com.tn.runtimetexturetuner/README.md) を参照してください。
 
 ## 開発用プロジェクトを開く
 

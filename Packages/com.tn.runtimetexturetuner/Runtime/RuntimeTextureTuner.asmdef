@@ -1,6 +1,6 @@
 {
-    "name": "RealtimeTextureTuner",
-    "rootNamespace": "RealtimeTextureTuner",
+    "name": "RuntimeTextureTuner",
+    "rootNamespace": "RuntimeTextureTuner",
     "references": [
         "Unity.XR.PICO"
     ],
@@ -15,7 +15,7 @@
         {
             "name": "com.unity.xr.picoxr",
             "expression": "",
-            "define": "REALTIMETEXTURETUNER_PICO"
+            "define": "RUNTIMETEXTURETUNER_PICO"
         }
     ],
     "noEngineReferences": false
