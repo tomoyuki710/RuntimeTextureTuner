@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- パッケージ内に英語版の README（`README.en.md`）を追加
+
 ## [0.1.0] - 2026-11-26
 
 - テクスチャのサンプラー設定（Mip Map Bias、Aniso Level、Filter Mode）を実行時に上書きし、元の値との切り替えと復元を行う機能

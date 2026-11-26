@@ -1,5 +1,7 @@
 # Runtime Texture Tuner
 
+日本語 | [English](README.en.md)
+
 VR の実機でコンテンツを動かしたまま、テクスチャごとの Mip Map Bias、Aniso Level、Filter Mode を調整するための開発用ツールです。値を変えるたびにビルドとインストールをやり直す必要がなくなります。
 
 実機で決めた値は JSON として PC に持ち帰り、Unity Editor で確認してから `TextureImporter` に反映します。調整用の機能は、専用のシンボルを付けたビルドにだけ含まれます。
