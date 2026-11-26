@@ -1,6 +1,6 @@
 # RuntimeTextureTuner
 
-Unity パッケージ `com.tn.runtimetexturetuner` と、その開発用 Unity プロジェクトです。
+VR の実機でコンテンツを動かしたまま、テクスチャごとの Mip Map Bias、Aniso Level、Filter Mode を調整するための Unity パッケージ `com.tn.runtimetexturetuner` と、その開発用 Unity プロジェクトです。
 
 ## パッケージとして使う
 
@@ -39,6 +39,18 @@ https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.run
 3. Unity Hub からプロジェクトを開きます。
 
 配置先のフォルダ名は `.gitignore` の除外パターン（`PICO-Unity-Integration-SDK-*`、`Unity Live Preview Plugin-*`）に合わせています。別の名前にする場合は、誤ってコミットしないように `.gitignore` を調整してください。
+
+### 動作確認用のサンプル
+
+`Assets/RuntimeTextureTunerPoC/` に、動作確認用のシーンとテストパターンがあります。メニューは `Tools > Runtime Texture Tuner > PoC` です。
+
+| メニュー | 内容 |
+|---|---|
+| Generate Content | テストパターン、マテリアル、シーンを作り直す |
+| Build Tuning APK | 調整機能つきの APK を `Builds/PoC/` に作る |
+| Build APK Without Tuner (for verification) | 調整機能なしの APK を `Builds/PoCWithoutTuner/` に作る |
+
+サンプルのシーンでは、左スティックで移動できます（XR Interaction Toolkit を使用）。パッケージ本体は XR Interaction Toolkit に依存しません。
 
 ### OpenXR Plugin について
 
