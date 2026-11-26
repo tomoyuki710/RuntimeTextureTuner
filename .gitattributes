@@ -1,0 +1,128 @@
+#
+# Git attributes for Unity projects
+#
+
+# Ensure that text files that any contributor introduces to the repository have their line endings normalized
+* text=auto
+
+# Increase probability of success for merging files with specific extensions
+*.cs diff=csharp
+
+# Unity files
+*.asmdef -text merge=unityyamlmerge
+*.anim -text merge=unityyamlmerge linguist-generated
+*.asset -text merge=unityyamlmerge linguist-generated
+*.brush -text merge=unityyamlmerge linguist-generated
+*.controller -text merge=unityyamlmerge linguist-generated
+*.flare -text merge=unityyamlmerge linguist-generated
+*.fontsettings -text merge=unityyamlmerge linguist-generated
+*.giparams -text merge=unityyamlmerge linguist-generated
+*.guiskin -text merge=unityyamlmerge linguist-generated
+*.mask -text merge=unityyamlmerge linguist-generated
+*.mat -text merge=unityyamlmerge linguist-generated
+*.meta -text merge=unityyamlmerge linguist-generated
+*.mixer -text merge=unityyamlmerge linguist-generated
+*.overrideController -text merge=unityyamlmerge linguist-generated
+*.physicMaterial -text merge=unityyamlmerge linguist-generated
+*.physicsMaterial2D -text merge=unityyamlmerge linguist-generated
+*.playable -text merge=unityyamlmerge linguist-generated
+*.prefab -text merge=unityyamlmerge linguist-generated
+*.preset -text merge=unityyamlmerge linguist-generated
+*.renderTexture -text merge=unityyamlmerge linguist-generated
+*.shadervariants -text merge=unityyamlmerge linguist-generated
+*.spriteatlas -text merge=unityyamlmerge linguist-generated
+*.terrainlayer -text merge=unityyamlmerge linguist-generated
+*.unity -text merge=unityyamlmerge linguist-generated
+
+# Unity binary files
+*.bundle lfs-file filter=lfs diff=lfs merge=lfs -text
+*.cubemap lfs-file filter=lfs diff=lfs merge=lfs -text
+*.unitypackage lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Unity specific assets
+*-[Nn]av[Mm]esh.asset lfs-file filter=lfs diff=lfs merge=lfs -text
+*-[Tt]errain.asset lfs-file filter=lfs diff=lfs merge=lfs -text
+*OcclusionCullingData.asset
+
+# Creative software
+*.rns lfs-file filter=lfs diff=lfs merge=lfs -text
+*.reason lfs-file filter=lfs diff=lfs merge=lfs -text
+*.lxo lfs-file filter=lfs diff=lfs merge=lfs -text
+*.exr lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Documents
+*.pdf lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Image formats
+*.afdesign lfs-file filter=lfs diff=lfs merge=lfs -text
+*.afphoto lfs-file filter=lfs diff=lfs merge=lfs -text
+*.ai lfs-file filter=lfs diff=lfs merge=lfs -text
+*.bmp lfs-file filter=lfs diff=lfs merge=lfs -text
+*.dds lfs-file filter=lfs diff=lfs merge=lfs -text
+*.jpg lfs-file filter=lfs diff=lfs merge=lfs -text
+*.gif lfs-file filter=lfs diff=lfs merge=lfs -text
+*.iff lfs-file filter=lfs diff=lfs merge=lfs -text
+*.pict lfs-file filter=lfs diff=lfs merge=lfs -text
+*.png lfs-file filter=lfs diff=lfs merge=lfs -text
+*.psd lfs-file filter=lfs diff=lfs merge=lfs -text
+*.svg lfs-file filter=lfs diff=lfs merge=lfs -text
+*.tga lfs-file filter=lfs diff=lfs merge=lfs -text
+*.tiff lfs-file filter=lfs diff=lfs merge=lfs -text
+*.webp lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Audio formats
+*.aif lfs-file filter=lfs diff=lfs merge=lfs -text
+*.aiff lfs-file filter=lfs diff=lfs merge=lfs -text
+*.it lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mod lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mp3 lfs-file filter=lfs diff=lfs merge=lfs -text
+*.ogg lfs-file filter=lfs diff=lfs merge=lfs -text
+*.s3m lfs-file filter=lfs diff=lfs merge=lfs -text
+*.wav lfs-file filter=lfs diff=lfs merge=lfs -text
+*.xm lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Video formats
+*.mov lfs-file filter=lfs diff=lfs merge=lfs -text
+*.avi lfs-file filter=lfs diff=lfs merge=lfs -text
+*.asf lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mpg lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mpeg lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mp4 lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# 3D formats
+*.3ds lfs-file filter=lfs diff=lfs merge=lfs -text
+*.3dm lfs-file filter=lfs diff=lfs merge=lfs -text
+*.abc lfs-file filter=lfs diff=lfs merge=lfs -text
+*.blend lfs-file filter=lfs diff=lfs merge=lfs -text
+*.c4d lfs-file filter=lfs diff=lfs merge=lfs -text
+*.dae lfs-file filter=lfs diff=lfs merge=lfs -text
+*.dfx lfs-file filter=lfs diff=lfs merge=lfs -text
+*.FBX lfs-file filter=lfs diff=lfs merge=lfs -text
+*.fbx lfs-file filter=lfs diff=lfs merge=lfs -text
+*.glb lfs-file filter=lfs diff=lfs merge=lfs -text
+*.gltf lfs-file filter=lfs diff=lfs merge=lfs -text
+*.lwo lfs-file filter=lfs diff=lfs merge=lfs -text
+*.lwo2 lfs-file filter=lfs diff=lfs merge=lfs -text
+*.lxo lfs-file filter=lfs diff=lfs merge=lfs -text
+*.obj lfs-file filter=lfs diff=lfs merge=lfs -text
+*.ma lfs-file filter=lfs diff=lfs merge=lfs -text
+*.max lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mb lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Font formats
+*.ttf lfs-file filter=lfs diff=lfs merge=lfs -text
+*.otf lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Bundles and binaries
+*.dll lfs-file filter=lfs diff=lfs merge=lfs -text
+*.exe lfs-file filter=lfs diff=lfs merge=lfs -text
+*.mdb lfs-file filter=lfs diff=lfs merge=lfs -text
+*.pdb lfs-file filter=lfs diff=lfs merge=lfs -text
+*.so lfs-file filter=lfs diff=lfs merge=lfs -text
+
+# Packaging
+*.zip lfs-file filter=lfs diff=lfs merge=lfs -text
+*.7z lfs-file filter=lfs diff=lfs merge=lfs -text
+*.gz lfs-file filter=lfs diff=lfs merge=lfs -text
+*.rar lfs-file filter=lfs diff=lfs merge=lfs -text
+*.tar lfs-file filter=lfs diff=lfs merge=lfs -text

@@ -136,3 +136,21 @@ crashlytics-build.properties
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# 第三者のSDK（再頒布不可のため各自で導入する。手順は README.md を参照）
+/[Pp]ackages/PICO-Unity-Integration-SDK-*/
+/[Pp]ackages/Unity Live Preview Plugin-*/
+/[Pp]ackages/com.unity.xr.openxr/
+
+# Unity CLI Loop が生成するファイル
+/.uloop/
+/.claude/skills/
+
+# PICO SDK が Assets/Resources に生成・コピーするファイル
+/[Aa]ssets/Resources/PXR_*
+/[Aa]ssets/Resources/PICOProjectSetting.asset
+/[Aa]ssets/Resources/PICOProjectSetting.asset.meta
+
+# 個人用の作業記録とドキュメント
+/tasks/
+/docs/
