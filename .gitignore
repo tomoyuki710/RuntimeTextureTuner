@@ -137,7 +137,7 @@ crashlytics-build.properties
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# 第三者のSDK（再頒布不可のため各自で導入する。手順は README.md を参照）
+# 第三者のSDK（再頒布不可のため各自で導入する。手順は DEVELOPMENT.md を参照）
 /[Pp]ackages/PICO-Unity-Integration-SDK-*/
 /[Pp]ackages/Unity Live Preview Plugin-*/
 /[Pp]ackages/com.unity.xr.openxr/
