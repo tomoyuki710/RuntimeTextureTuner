@@ -10,6 +10,12 @@ Unity の Package Manager で「Install package from git URL...」を選び、�
 https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner
 ```
 
+バージョンを固定する場合は、URL の末尾にタグを付けます。
+
+```
+https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.1.0
+```
+
 詳細は [Packages/com.tn.runtimetexturetuner/README.md](Packages/com.tn.runtimetexturetuner/README.md) を参照してください。
 
 ## 開発用プロジェクトを開く

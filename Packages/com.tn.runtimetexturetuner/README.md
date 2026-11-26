@@ -23,6 +23,12 @@ Unity の Package Manager で「Install package from git URL...」を選び、�
 https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner
 ```
 
+バージョンを固定する場合は、URL の末尾にタグを付けます。
+
+```
+https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.1.0
+```
+
 Input System、XR Interaction Toolkit、各社の XR SDK には依存しません。
 
 ## 使い方
