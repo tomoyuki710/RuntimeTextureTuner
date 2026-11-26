@@ -6,7 +6,8 @@ using UnityEngine;
 namespace RuntimeTextureTuner
 {
     /// <summary>
-    /// HMD 内に出す調整パネル。World Space に置き、開いた位置に留まる（頭には追従しない）。
+    /// HMD 内に出す調整パネル。World Space に置き、頭には追従しない。
+    /// 基準（カメラの親など、プレイヤーの体の座標系）を指定すると、基準から見た位置を保ったまま、基準の移動に追従する。
     /// </summary>
     internal sealed class RuntimeTunerPanel
     {
@@ -55,11 +56,15 @@ namespace RuntimeTextureTuner
         private PanelWidget _biasLabel;
         private PanelWidget _biasTrack;
         private PanelWidget _biasHandle;
+        private PanelWidget _animationButton;
         private PanelWidget _compareButton;
         private PanelWidget _keepButton;
         private PanelWidget _diagnosticsLabel;
         private PanelWidget _exportButton;
         private PanelWidget _exportMessageLabel;
+        private Transform _anchor;
+        private Vector3 _anchorLocalPosition;
+        private Quaternion _anchorLocalRotation = Quaternion.identity;
         private PanelWidget _hovered;
         private PanelWidget _pressed;
         private int _page;
@@ -78,9 +83,9 @@ namespace RuntimeTextureTuner
         public bool IsVisible => _root.activeSelf;
 
         /// <summary>
-        /// 頭の正面（水平方向）にパネルを置いて表示する。
+        /// 頭の正面（水平方向）にパネルを置いて表示する。anchor が null でなければ、以後 anchor の移動に追従する。
         /// </summary>
-        public void Show(Pose head)
+        public void Show(Pose head, Transform anchor)
         {
             Vector3 forward = Vector3.ProjectOnPlane(head.rotation * Vector3.forward, Vector3.up);
             if (forward.sqrMagnitude < 0.0001f)
@@ -91,6 +96,8 @@ namespace RuntimeTextureTuner
             forward.Normalize();
             Vector3 position = head.position + forward * _settings.PanelDistance + Vector3.up * HeightOffset;
             _root.transform.SetPositionAndRotation(position, Quaternion.LookRotation(forward, Vector3.up));
+            _anchor = anchor;
+            RecordAnchorPose();
             _root.SetActive(true);
             Refresh();
         }
@@ -119,6 +126,33 @@ namespace RuntimeTextureTuner
             Quaternion rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
             Vector3 position = grabPoint - rotation * new Vector3(grabLocal.x, grabLocal.y, 0f);
             _root.transform.SetPositionAndRotation(position, rotation);
+            RecordAnchorPose();
+        }
+
+        /// <summary>
+        /// 基準から見た位置と向きを保つよう、パネルを置き直す。基準がない、または破棄された場合はその場に留まる。
+        /// </summary>
+        public void FollowAnchor()
+        {
+            if (!IsVisible || _anchor == null)
+            {
+                return;
+            }
+
+            Vector3 position = _anchor.TransformPoint(_anchorLocalPosition);
+            _root.transform.SetPositionAndRotation(position, _anchor.rotation * _anchorLocalRotation);
+        }
+
+        private void RecordAnchorPose()
+        {
+            if (_anchor == null)
+            {
+                return;
+            }
+
+            Transform panel = _root.transform;
+            _anchorLocalPosition = _anchor.InverseTransformPoint(panel.position);
+            _anchorLocalRotation = Quaternion.Inverse(_anchor.rotation) * panel.rotation;
         }
 
         public void Hide()
@@ -224,9 +258,11 @@ namespace RuntimeTextureTuner
 
             // 上端の帯をつかんで動かせる。帯の上のボタンは帯より手前の層に置く。
             AddWidget("DragBar", new Rect(left, top - DragBarHeight, Width, DragBarHeight), DragBarColor, TextSize, TextAnchor.MiddleCenter, 1);
-            PanelWidget title = AddLabel("Title", new Rect(left + 0.01f, top - 0.05f, 0.5f, 0.04f), SmallTextSize, TextAnchor.MiddleLeft);
-            title.SetText("TEXTURE TUNER (tuning build)   [drag this bar to move]");
-            _statusLabel = AddLabel("Status", new Rect(0.0f, top - 0.05f, 0.36f, 0.04f), TextSize, TextAnchor.MiddleLeft);
+            PanelWidget title = AddLabel("Title", new Rect(left + 0.01f, top - 0.05f, 0.3f, 0.04f), SmallTextSize, TextAnchor.MiddleLeft);
+            title.SetText("TEXTURE TUNER   [drag bar to move]");
+            _statusLabel = AddLabel("Status", new Rect(-0.1f, top - 0.05f, 0.3f, 0.04f), TextSize, TextAnchor.MiddleLeft);
+            _animationButton = AddWidget("PauseAnimations", new Rect(Width * 0.5f - 0.31f, top - 0.055f, 0.15f, RowHeight), ButtonColor, SmallTextSize, TextAnchor.MiddleCenter, 2);
+            _animationButton.OnPress = OnPauseAnimationsPressed;
             PanelWidget hideButton = AddWidget("Hide", new Rect(Width * 0.5f - 0.15f, top - 0.055f, 0.14f, RowHeight), ButtonColor, SmallTextSize, TextAnchor.MiddleCenter, 2);
             hideButton.SetText("Hide panel");
             hideButton.OnPress = onHide;
@@ -404,6 +440,11 @@ namespace RuntimeTextureTuner
             _session.SetFilterMode(filterMode);
         }
 
+        private void OnPauseAnimationsPressed()
+        {
+            _session.ToggleAnimationPause();
+        }
+
         private void OnComparePressed()
         {
             _session.ToggleCompareMode();
@@ -465,6 +506,9 @@ namespace RuntimeTextureTuner
             bool isAdjusted = _session.CompareMode == CompareMode.Adjusted;
             _statusLabel.SetText(isAdjusted ? "SHOWING: ADJUSTED" : "SHOWING: ORIGINAL");
             _statusLabel.SetTextColor(isAdjusted ? Color.white : WarningColor);
+            bool isAnimationPaused = _session.IsAnimationPaused;
+            _animationButton.SetText(isAnimationPaused ? "Resume anims" : "Pause anims");
+            _animationButton.SetColor(isAnimationPaused ? ActiveColor : ButtonColor);
             _compareButton.SetText(isAdjusted ? "Show ORIGINAL" : "Show ADJUSTED");
             _compareButton.SetColor(isAdjusted ? ButtonColor : ActiveColor);
             _exportButton.SetText($"Export kept ({_session.KeptCount})");
@@ -534,7 +578,8 @@ namespace RuntimeTextureTuner
             string propertyNames = BuildPropertyNames(target, _session.SelectedRenderer);
             string textureName = target.Texture == null ? "(destroyed)" : Shorten(target.Texture.name);
             string unsupported = target.IsAdjustable ? string.Empty : " unsupported";
-            row.SetText(ShortenTo($"{textureName}  ({propertyNames}){unsupported}", MaxRowLength));
+            string block = target.IsSetByPropertyBlock ? " MPB" : string.Empty;
+            row.SetText(ShortenTo($"{textureName}  ({propertyNames}){block}{unsupported}", MaxRowLength));
 
             bool isSelected = target == _session.SelectedTarget;
             Color color = target.IsAdjustable ? ButtonColor : DisabledColor;
@@ -677,9 +722,9 @@ namespace RuntimeTextureTuner
                 _text.AppendLine($"Cannot be exported ({_session.GetSelectedExportSupport(out _)}). You can still try values here.");
             }
 
-            if (target.HasPropertyBlockUsage)
+            if (target.IsSetByPropertyBlock)
             {
-                _text.AppendLine("Renderer has a MaterialPropertyBlock: drawn texture may differ.");
+                _text.AppendLine("Set by a MaterialPropertyBlock. Press Rescan if a script swaps it.");
             }
 
             return _text.ToString();

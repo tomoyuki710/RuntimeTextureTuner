@@ -8,6 +8,8 @@ namespace RuntimeTextureTuner
     /// 調整機能の本体。入力を読み、パネルの開閉、レイによる操作と対象の選択を行う。
     /// 既存の EventSystem、Interactor、Collider、Layer を使わず、コンテンツ側のオブジェクトも変更しない。
     /// </summary>
+    // タイムラインやコンテンツの LateUpdate でプレイヤーが動いた後に、パネルを追従させるため、最後に処理する。
+    [DefaultExecutionOrder(10000)]
     public sealed class RuntimeTuner : MonoBehaviour
     {
         private const float PointerLength = 8f;
@@ -79,7 +81,7 @@ namespace RuntimeTextureTuner
             }
 
             bool wasVisible = _panel.IsVisible;
-            _panel.Show(head);
+            _panel.Show(head, ResolvePanelAnchor());
             if (!wasVisible)
             {
                 _isCatalogDirty = true;
@@ -89,7 +91,7 @@ namespace RuntimeTextureTuner
         }
 
         /// <summary>
-        /// パネルを隠す。調整値は維持する。
+        /// パネルを隠す。調整値は維持する。止めたアニメーションは再開する。
         /// </summary>
         public void HidePanel()
         {
@@ -99,6 +101,9 @@ namespace RuntimeTextureTuner
             }
 
             _isDraggingPanel = false;
+
+            // 閉じた後も止まったままだと気づきにくいため、止めたアニメーションは閉じるときに再開する。
+            _session.ResumeAnimations();
             _panel.Hide();
             _pointer.HideRay();
             _pointer.HideBounds();
@@ -122,7 +127,7 @@ namespace RuntimeTextureTuner
             Debug.Log($"{LogPrefix} TUNING BUILD: the runtime texture tuner is active. Hold the open buttons for {_settings.OpenHoldSeconds:0.0} s to open the panel.");
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             Tick();
         }
@@ -137,6 +142,7 @@ namespace RuntimeTextureTuner
 
                 // Editor ではテクスチャアセットのインスタンスが残るため、必ず元の値に戻す。
                 _session.ResetAll();
+                _session.ResumeAnimations();
             }
 
             if (_panel != null)
@@ -153,6 +159,16 @@ namespace RuntimeTextureTuner
             {
                 Current = null;
             }
+        }
+
+        /// <summary>
+        /// パネルが追従する基準。カメラの親（XR Origin の Camera Offset など、トラッキング空間）を使う。
+        /// カメラに親がなければ null を返し、パネルはワールドに留まる。
+        /// </summary>
+        private static Transform ResolvePanelAnchor()
+        {
+            Camera mainCamera = Camera.main;
+            return mainCamera == null ? null : mainCamera.transform.parent;
         }
 
         private void OnHideRequested()
@@ -197,6 +213,8 @@ namespace RuntimeTextureTuner
                 _session.RefreshCatalog(transform);
             }
 
+            // レイの当たり判定より前に、プレイヤーの移動に合わせてパネルを置き直す。
+            _panel.FollowAnchor();
             UpdatePointer();
             UpdateSelectionBounds();
             RefreshPanel();
@@ -275,6 +293,9 @@ namespace RuntimeTextureTuner
             _panel.UpdatePointer(null, false, isSelectHeld);
             if (isSelectDown)
             {
+                // パネルを開いた後に表示された物（タイムラインで有効になった物、生成された物など）も選べるよう、
+                // 選ぶたびに一覧を作り直す。
+                _session.RefreshCatalog(transform);
                 _session.SelectAlongRay(ray);
             }
         }

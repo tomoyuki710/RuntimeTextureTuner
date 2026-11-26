@@ -43,16 +43,16 @@ namespace RuntimeTextureTuner
         public int MaterialCount => _materials.Count;
 
         /// <summary>
-        /// 使用箇所のいずれかで MaterialPropertyBlock が設定されているかどうか。
+        /// 使用箇所のいずれかで、MaterialPropertyBlock によって設定されているかどうか。
         /// </summary>
-        public bool HasPropertyBlockUsage { get; private set; }
+        public bool IsSetByPropertyBlock { get; private set; }
 
         internal void AddUsage(TextureUsage usage)
         {
             _usages.Add(usage);
             _renderers.Add(usage.Renderer);
             _materials.Add(usage.Material);
-            HasPropertyBlockUsage |= usage.HasPropertyBlock;
+            IsSetByPropertyBlock |= usage.IsFromPropertyBlock;
         }
     }
 }

@@ -99,9 +99,10 @@ namespace RuntimeTextureTuner
         }
 
         [Test]
-        public void Rebuild_PropertyBlock_IsFlagged()
+        public void Rebuild_PropertyBlockWithoutTexture_ListsMaterialTexture()
         {
-            Renderer targetRenderer = CreateRenderer(CreateMaterial(CreateTexture()));
+            Texture2D materialTexture = CreateTexture();
+            Renderer targetRenderer = CreateRenderer(CreateMaterial(materialTexture));
             var propertyBlock = new MaterialPropertyBlock();
             propertyBlock.SetFloat("_Dummy", 1f);
             targetRenderer.SetPropertyBlock(propertyBlock);
@@ -109,7 +110,63 @@ namespace RuntimeTextureTuner
 
             catalog.Rebuild(new[] { targetRenderer });
 
-            Assert.IsTrue(catalog.GetTargets(targetRenderer)[0].HasPropertyBlockUsage);
+            TextureTarget target = catalog.GetTargets(targetRenderer)[0];
+            Assert.AreSame(materialTexture, target.Texture);
+            Assert.IsFalse(target.IsSetByPropertyBlock);
+        }
+
+        [Test]
+        public void Rebuild_PropertyBlockTexture_ReplacesMaterialTexture()
+        {
+            Texture2D materialTexture = CreateTexture();
+            Texture2D blockTexture = CreateTexture();
+            Renderer targetRenderer = CreateRenderer(CreateMaterial(materialTexture));
+            var propertyBlock = new MaterialPropertyBlock();
+            propertyBlock.SetTexture(TexturePropertyName, blockTexture);
+            targetRenderer.SetPropertyBlock(propertyBlock);
+            var catalog = new RendererCatalog();
+
+            catalog.Rebuild(new[] { targetRenderer });
+
+            IReadOnlyList<TextureTarget> targets = catalog.GetTargets(targetRenderer);
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreSame(blockTexture, targets[0].Texture);
+            Assert.IsTrue(targets[0].IsSetByPropertyBlock);
+            Assert.IsTrue(targets[0].Usages[0].IsFromPropertyBlock);
+        }
+
+        [Test]
+        public void Rebuild_PropertyBlockTexture_IsListedFirst()
+        {
+            Texture2D materialTexture = CreateTexture();
+            Texture2D blockTexture = CreateTexture();
+            Renderer targetRenderer = CreateRenderer(CreateMaterial(materialTexture));
+            var propertyBlock = new MaterialPropertyBlock();
+            propertyBlock.SetTexture("_AlphaTex", blockTexture);
+            targetRenderer.SetPropertyBlock(propertyBlock);
+            var catalog = new RendererCatalog();
+
+            catalog.Rebuild(new[] { targetRenderer });
+
+            IReadOnlyList<TextureTarget> targets = catalog.GetTargets(targetRenderer);
+            Assert.AreEqual(2, targets.Count);
+            Assert.AreSame(blockTexture, targets[0].Texture);
+            Assert.AreSame(materialTexture, targets[1].Texture);
+        }
+
+        [Test]
+        public void Rebuild_PerMaterialPropertyBlockTexture_ReplacesMaterialTexture()
+        {
+            Texture2D blockTexture = CreateTexture();
+            Renderer targetRenderer = CreateRenderer(CreateMaterial(CreateTexture()));
+            var propertyBlock = new MaterialPropertyBlock();
+            propertyBlock.SetTexture(TexturePropertyName, blockTexture);
+            targetRenderer.SetPropertyBlock(propertyBlock, 0);
+            var catalog = new RendererCatalog();
+
+            catalog.Rebuild(new[] { targetRenderer });
+
+            Assert.AreSame(blockTexture, catalog.GetTargets(targetRenderer)[0].Texture);
         }
 
         [Test]

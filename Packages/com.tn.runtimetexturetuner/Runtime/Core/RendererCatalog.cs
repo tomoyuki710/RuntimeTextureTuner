@@ -17,6 +17,8 @@ namespace RuntimeTextureTuner
         private readonly Dictionary<Renderer, List<TextureTarget>> _targetsByRenderer = new Dictionary<Renderer, List<TextureTarget>>();
         private readonly List<Material> _materialBuffer = new List<Material>();
         private readonly List<string> _propertyNameBuffer = new List<string>();
+        private readonly MaterialPropertyBlock _rendererBlock = new MaterialPropertyBlock();
+        private readonly MaterialPropertyBlock _materialBlock = new MaterialPropertyBlock();
 
         /// <summary>
         /// 把握している Renderer。
@@ -95,7 +97,11 @@ namespace RuntimeTextureTuner
         private List<TextureTarget> CollectTargets(Renderer targetRenderer)
         {
             var targets = new List<TextureTarget>();
-            bool hasPropertyBlock = targetRenderer.HasPropertyBlock();
+
+            // MaterialPropertyBlock でテクスチャが差し替えられている場合は、マテリアルの値ではなく、実際に描画される差し替え後のテクスチャを集める。
+            // MaterialPropertyBlock の内容は一覧を作った時点のもの。
+            targetRenderer.GetPropertyBlock(_rendererBlock);
+            int blockTargetCount = 0;
 
             // sharedMaterials を使い、マテリアルの暗黙の複製を避ける。
             targetRenderer.GetSharedMaterials(_materialBuffer);
@@ -107,25 +113,75 @@ namespace RuntimeTextureTuner
                     continue;
                 }
 
+                targetRenderer.GetPropertyBlock(_materialBlock, materialIndex);
                 material.GetTexturePropertyNames(_propertyNameBuffer);
                 foreach (string propertyName in _propertyNameBuffer)
                 {
-                    Texture texture = material.GetTexture(propertyName);
+                    Texture texture = ResolveTexture(material, propertyName, out bool isFromPropertyBlock);
                     if (texture == null)
                     {
                         continue;
                     }
 
                     TextureTarget target = GetOrCreateTarget(texture);
-                    target.AddUsage(new TextureUsage(targetRenderer, materialIndex, material, propertyName, hasPropertyBlock));
-                    if (!targets.Contains(target))
-                    {
-                        targets.Add(target);
-                    }
+                    target.AddUsage(new TextureUsage(targetRenderer, materialIndex, material, propertyName, isFromPropertyBlock));
+                    AddTarget(targets, target, isFromPropertyBlock, ref blockTargetCount);
                 }
             }
 
             return targets;
+        }
+
+        /// <summary>
+        /// プロパティで実際に描画されるテクスチャを返す。マテリアル単位の MaterialPropertyBlock、
+        /// Renderer 全体の MaterialPropertyBlock、マテリアルの順に探す。
+        /// </summary>
+        /// <summary>
+        /// Renderer のテクスチャ一覧に追加する。MaterialPropertyBlock で設定されたテクスチャは、実際に描画されていることが確かなので先頭側に並べる。
+        /// マテリアルのテクスチャには、シェーダーが使っていない互換用のプロパティ（_MainTex など）の値も含まれる。
+        /// </summary>
+        private static void AddTarget(List<TextureTarget> targets, TextureTarget target, bool isFromPropertyBlock, ref int blockTargetCount)
+        {
+            int existingIndex = targets.IndexOf(target);
+            if (!isFromPropertyBlock)
+            {
+                if (existingIndex < 0)
+                {
+                    targets.Add(target);
+                }
+
+                return;
+            }
+
+            if (existingIndex >= 0 && existingIndex < blockTargetCount)
+            {
+                return;
+            }
+
+            if (existingIndex >= 0)
+            {
+                targets.RemoveAt(existingIndex);
+            }
+
+            targets.Insert(blockTargetCount, target);
+            blockTargetCount++;
+        }
+
+        private Texture ResolveTexture(Material material, string propertyName, out bool isFromPropertyBlock)
+        {
+            isFromPropertyBlock = true;
+            if (!_materialBlock.isEmpty && _materialBlock.HasTexture(propertyName))
+            {
+                return _materialBlock.GetTexture(propertyName);
+            }
+
+            if (!_rendererBlock.isEmpty && _rendererBlock.HasTexture(propertyName))
+            {
+                return _rendererBlock.GetTexture(propertyName);
+            }
+
+            isFromPropertyBlock = false;
+            return material.GetTexture(propertyName);
         }
 
         private TextureTarget GetOrCreateTarget(Texture texture)

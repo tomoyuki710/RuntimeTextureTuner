@@ -7,13 +7,13 @@ namespace RuntimeTextureTuner
     /// </summary>
     public readonly struct TextureUsage
     {
-        public TextureUsage(Renderer renderer, int materialIndex, Material material, string propertyName, bool hasPropertyBlock)
+        public TextureUsage(Renderer renderer, int materialIndex, Material material, string propertyName, bool isFromPropertyBlock)
         {
             Renderer = renderer;
             MaterialIndex = materialIndex;
             Material = material;
             PropertyName = propertyName;
-            HasPropertyBlock = hasPropertyBlock;
+            IsFromPropertyBlock = isFromPropertyBlock;
         }
 
         public Renderer Renderer { get; }
@@ -25,9 +25,8 @@ namespace RuntimeTextureTuner
         public string PropertyName { get; }
 
         /// <summary>
-        /// Renderer に MaterialPropertyBlock が設定されているかどうか。
-        /// 設定されている場合、実際に描画に使われるテクスチャがマテリアルの値と異なる可能性がある。
+        /// このテクスチャが、マテリアルではなく Renderer の MaterialPropertyBlock で設定されているかどうか。
         /// </summary>
-        public bool HasPropertyBlock { get; }
+        public bool IsFromPropertyBlock { get; }
     }
 }

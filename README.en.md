@@ -59,6 +59,8 @@ In a tuning build, a table that maps textures to their source assets is added to
 | Point the ray at a wall or floor and pull the right trigger | List the renderers in that direction as candidates |
 | Grab the bar at the top of the panel and move the ray | Move the panel |
 
+The panel does not follow your head; it stays where it was placed. It does follow the player, that is, the parent of the camera, so it keeps the same position relative to you even when a timeline or anything else moves the player.
+
 1. Open the panel, point the ray at the object you want to tune, and pull the trigger.
 2. Candidates are listed nearest first. Pick the target. The selected target is outlined.
 3. The list switches to the textures used by that target. Pick the texture to tune.
@@ -66,6 +68,8 @@ In a tuning build, a table that maps textures to their source assets is added to
 5. Compare with `Show ORIGINAL` and `Show ADJUSTED`, then press `Keep` on the values you want to adopt.
 6. Press `Hide panel` to check the result without the panel. The adjusted values stay in effect.
 7. Press `Export kept` to save the kept values as JSON in the app's data folder.
+
+To tune an object that is moving with an animation, press `Pause anims` at the top of the panel to pause the animations in the scene. `Resume anims` resumes them, and so does closing the panel. Time (`Time.timeScale`) is not changed, so thumbstick movement and turning still work while the animations are paused.
 
 ![The tuning panel](Images/panel.png)
 
@@ -146,13 +150,19 @@ The tuner does not interfere with existing input, so your content still receives
 - Unity's documentation does not recommend a negative Mip Map Bias stronger than -0.5, because of the performance cost and shimmering. The panel shows a warning below -0.5.
 - For textures without mipmaps, changing the bias has no visible effect.
 - When Anisotropic Textures in the Quality Settings is set to anything other than Per Texture, the per-texture Aniso Level is overridden.
-- Textures swapped in through a `MaterialPropertyBlock` are not listed. The panel does warn that a property block is present.
+- For a renderer whose textures are swapped through a `MaterialPropertyBlock`, the swapped-in textures are listed first, marked `MPB`, in place of the material's textures. The list is rebuilt when you select a target with the trigger, so press `Rescan` if a script swaps the texture after that. A swapped-in texture can be brought back only if a material in a scene also references it at the time of the tuning build.
 - Changing the values of a shared texture affects every material and renderer that uses it.
 - Per-texture settings may have no effect in the following cases. This is an expectation from reading the shader source and has not been verified on a device.
   - A Shader Graph with a Sampler State node connected
   - A Shader Graph whose Mip Sampling Mode is LOD
   - Layers 1 to 3 of URP Terrain Lit
 - Textures referenced only by something other than renderers, such as UI, are not supported.
+- `Pause anims` pauses the Animators, timelines (PlayableDirector), particle systems and Animation components that are playing when you press it. The following keep moving.
+  - Objects moved by scripts (for example with `Time.deltaTime`) or by tweening libraries
+  - Objects animated by `_Time` in a shader (flowing water, scrolling textures and so on)
+  - Anything that starts playing or is created after you press it
+  - Timelines whose update mode is Manual
+- Whether audio tracks in a timeline are paused has not been verified.
 - The Sessions window can load one session at a time.
 - On-device behavior has only been verified on PICO 4 Ultra.
 

@@ -23,6 +23,7 @@ namespace RuntimeTextureTuner
         private readonly List<Renderer> _rendererBuffer = new List<Renderer>();
         private readonly List<SelectionCandidate> _candidates = new List<SelectionCandidate>();
         private readonly List<Texture> _keptBuffer = new List<Texture>();
+        private readonly AnimationPause _animationPause = new AnimationPause();
 
         private TextureSamplerSettings _pendingSettings;
         private bool _hasPendingSettings;
@@ -53,6 +54,44 @@ namespace RuntimeTextureTuner
         public int RendererCount => _catalog.Renderers.Count;
 
         public int KeptCount => _service.CountKept();
+
+        /// <summary>
+        /// シーン内のアニメーションを止めているかどうか。
+        /// </summary>
+        public bool IsAnimationPaused => _animationPause.IsPaused;
+
+        /// <summary>
+        /// シーン内のアニメーションを止める、または再開する。アニメーションで動いている物を止めて調整するために使う。
+        /// </summary>
+        public void ToggleAnimationPause()
+        {
+            _animationPause.Toggle();
+            if (_animationPause.IsPaused)
+            {
+                Debug.Log($"[RuntimeTextureTuner] Animations paused ({_animationPause.PausedCount} object(s)).");
+            }
+            else
+            {
+                Debug.Log("[RuntimeTextureTuner] Animations resumed.");
+            }
+
+            NotifyChanged();
+        }
+
+        /// <summary>
+        /// 止めているアニメーションを再開する。止めていない場合は何もしない。
+        /// </summary>
+        public void ResumeAnimations()
+        {
+            if (!_animationPause.IsPaused)
+            {
+                return;
+            }
+
+            _animationPause.Resume();
+            Debug.Log("[RuntimeTextureTuner] Animations resumed.");
+            NotifyChanged();
+        }
 
         /// <summary>
         /// 直近の Export の結果を表す文。まだ Export していない場合は空文字列。
