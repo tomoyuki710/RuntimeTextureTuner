@@ -12,11 +12,17 @@ namespace RuntimeTextureTuner
         // スライダーの操作ごとにテクスチャへ書き込まず、最大 20Hz にまとめる。
         private const float ApplyIntervalSeconds = 0.05f;
 
+        /// <summary>
+        /// セッションの JSON を保存するフォルダー名。アプリのデータ領域の直下に作る。
+        /// </summary>
+        public const string ExportFolderName = "RuntimeTextureTuner";
+
         private readonly TunerSettings _settings;
         private readonly RendererCatalog _catalog = new RendererCatalog();
         private readonly SamplerOverrideService _service = new SamplerOverrideService();
         private readonly List<Renderer> _rendererBuffer = new List<Renderer>();
         private readonly List<SelectionCandidate> _candidates = new List<SelectionCandidate>();
+        private readonly List<Texture> _keptBuffer = new List<Texture>();
 
         private TextureSamplerSettings _pendingSettings;
         private bool _hasPendingSettings;
@@ -47,6 +53,11 @@ namespace RuntimeTextureTuner
         public int RendererCount => _catalog.Renderers.Count;
 
         public int KeptCount => _service.CountKept();
+
+        /// <summary>
+        /// 直近の Export の結果を表す文。まだ Export していない場合は空文字列。
+        /// </summary>
+        public string LastExportMessage { get; private set; } = string.Empty;
 
         /// <summary>
         /// シーン内の Renderer を調べ直す。excludedRoot の配下（調整機能自身の表示物）は対象から外す。
@@ -242,6 +253,99 @@ namespace RuntimeTextureTuner
             _hasPendingSettings = false;
             _service.ResetAll();
             NotifyChanged();
+        }
+
+        /// <summary>
+        /// 選択中のテクスチャを Editor へ持ち帰れるかどうかと、対応するアセットの情報を取得する。
+        /// </summary>
+        public TextureExportSupport GetSelectedExportSupport(out TextureManifestEntry entry)
+        {
+            Texture texture = SelectedTarget == null ? null : SelectedTarget.Texture;
+            return TextureRegistry.Resolve(texture, out entry);
+        }
+
+        /// <summary>
+        /// 採用予定（Keep）の項目を JSON に保存する。持ち帰れないテクスチャは含めない。
+        /// 結果は <see cref="LastExportMessage"/> に入る。
+        /// </summary>
+        public bool TryExport()
+        {
+            FlushPendingSettings();
+            _service.GetKeptTextures(_keptBuffer);
+
+            var session = new TuningSessionData(
+                TextureRegistry.BuildId,
+                Application.unityVersion,
+                SystemInfo.deviceModel,
+                SystemInfo.graphicsDeviceType.ToString(),
+                QualitySettings.names[QualitySettings.GetQualityLevel()],
+                DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture));
+
+            int skippedCount = 0;
+            foreach (Texture texture in _keptBuffer)
+            {
+                if (!TryCreateEntry(texture, out TuningSessionEntry entry))
+                {
+                    skippedCount++;
+                    continue;
+                }
+
+                session.AddEntry(entry);
+            }
+
+            bool isSaved = TrySave(session, skippedCount);
+            NotifyChanged();
+            return isSaved;
+        }
+
+        private bool TryCreateEntry(Texture texture, out TuningSessionEntry entry)
+        {
+            entry = null;
+            TextureExportSupport support = TextureRegistry.Resolve(texture, out TextureManifestEntry manifestEntry);
+            bool hasSettings = _service.TryGetOriginal(texture, out TextureSamplerSettings original);
+            hasSettings &= _service.TryGetKept(texture, out TextureSamplerSettings kept);
+            if (support != TextureExportSupport.Exportable || !hasSettings)
+            {
+                return false;
+            }
+
+            entry = new TuningSessionEntry(manifestEntry, original, kept, true);
+            return true;
+        }
+
+        private bool TrySave(TuningSessionData session, int skippedCount)
+        {
+            if (session.Entries.Count == 0)
+            {
+                LastExportMessage = skippedCount > 0
+                    ? $"Nothing exported: {skippedCount} kept texture(s) cannot be exported."
+                    : "Nothing exported: no texture is kept.";
+                return false;
+            }
+
+            string fileName = $"session_{DateTime.Now.ToString("yyyyMMdd_HHmmss", System.Globalization.CultureInfo.InvariantCulture)}.json";
+            string path = System.IO.Path.Combine(Application.persistentDataPath, ExportFolderName, fileName);
+            try
+            {
+                SessionSerializer.WriteFile(path, SessionSerializer.ToJson(session));
+            }
+            catch (System.IO.IOException exception)
+            {
+                LastExportMessage = $"Export failed: {exception.Message}";
+                Debug.LogError($"[RuntimeTextureTuner] {LastExportMessage}");
+                return false;
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                LastExportMessage = $"Export failed: {exception.Message}";
+                Debug.LogError($"[RuntimeTextureTuner] {LastExportMessage}");
+                return false;
+            }
+
+            string skipped = skippedCount > 0 ? $", skipped {skippedCount}" : string.Empty;
+            LastExportMessage = $"Exported {session.Entries.Count}{skipped}: {fileName}";
+            Debug.Log($"[RuntimeTextureTuner] {LastExportMessage} ({path})");
+            return true;
         }
 
         /// <summary>

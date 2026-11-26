@@ -11,6 +11,9 @@ namespace RuntimeTextureTuner
         private const float BoundsWidth = 0.006f;
         private const int BoundsPointCount = 16;
 
+        // パネルの板や文字（描画順 0〜12）より後に描き、レイがボタンの下に隠れないようにする。
+        private const int SortingOrder = 100;
+
         private static readonly Color RayColor = new Color(0.3f, 0.8f, 1f, 0.9f);
         private static readonly Color BoundsColor = new Color(1f, 0.85f, 0.2f, 0.9f);
 
@@ -98,6 +101,7 @@ namespace RuntimeTextureTuner
             line.startWidth = width;
             line.endWidth = width;
             line.sharedMaterial = material;
+            line.sortingOrder = SortingOrder;
             line.enabled = false;
             TunerMaterials.DisableLighting(line);
             return line;

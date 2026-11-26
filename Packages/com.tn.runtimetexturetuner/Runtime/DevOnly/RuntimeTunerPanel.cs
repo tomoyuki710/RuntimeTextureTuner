@@ -20,6 +20,8 @@ namespace RuntimeTextureTuner
         private const int RowCount = 7;
         private const int MaxNameLength = 34;
         private const int MaxRowLength = 46;
+        private const int MaxMessageLength = 40;
+        private const int MaxPathLength = 56;
         private const float RecommendedMinBias = -0.5f;
         private const float DragBarHeight = 0.065f;
 
@@ -56,6 +58,8 @@ namespace RuntimeTextureTuner
         private PanelWidget _compareButton;
         private PanelWidget _keepButton;
         private PanelWidget _diagnosticsLabel;
+        private PanelWidget _exportButton;
+        private PanelWidget _exportMessageLabel;
         private PanelWidget _hovered;
         private PanelWidget _pressed;
         private int _page;
@@ -295,6 +299,10 @@ namespace RuntimeTextureTuner
             _keepButton = AddButton("Keep", new Rect(left + 0.21f, actionY, 0.09f, RowHeight), "Keep", OnKeepPressed);
             AddButton("Reset", new Rect(left + 0.31f, actionY, 0.1f, RowHeight), "Reset", OnResetPressed);
             AddButton("ResetAll", new Rect(left + 0.42f, actionY, 0.13f, RowHeight), "Reset all", OnResetAllPressed);
+
+            float exportY = actionY - RowPitch - 0.004f;
+            _exportButton = AddButton("Export", new Rect(left, exportY, 0.2f, RowHeight), string.Empty, OnExportPressed);
+            _exportMessageLabel = AddLabel("ExportMessage", new Rect(left + 0.21f, exportY, 0.34f, RowHeight), SmallTextSize, TextAnchor.MiddleLeft);
         }
 
         private PanelWidget AddWidget(string name, Rect rect, Color color, float textSize, TextAnchor anchor, int layer)
@@ -411,6 +419,11 @@ namespace RuntimeTextureTuner
             _session.ResetSelected();
         }
 
+        private void OnExportPressed()
+        {
+            _session.TryExport();
+        }
+
         private void OnResetAllPressed()
         {
             _session.ResetAll();
@@ -454,6 +467,8 @@ namespace RuntimeTextureTuner
             _statusLabel.SetTextColor(isAdjusted ? Color.white : WarningColor);
             _compareButton.SetText(isAdjusted ? "Show ORIGINAL" : "Show ADJUSTED");
             _compareButton.SetColor(isAdjusted ? ButtonColor : ActiveColor);
+            _exportButton.SetText($"Export kept ({_session.KeptCount})");
+            _exportMessageLabel.SetText(ShortenTo(_session.LastExportMessage, MaxMessageLength));
         }
 
         private void RefreshList()
@@ -595,6 +610,7 @@ namespace RuntimeTextureTuner
             Texture texture = target.Texture;
             _text.Clear();
             _text.AppendLine(Shorten(texture.name));
+            _text.AppendLine(BuildAssetLine());
             _text.AppendLine($"{texture.width}x{texture.height}  {texture.graphicsFormat}  mips: {texture.mipmapCount}");
             _text.AppendLine($"Used by {target.RendererCount} renderer(s), {target.MaterialCount} material(s). All are affected.");
             if (hasSettings)
@@ -604,6 +620,27 @@ namespace RuntimeTextureTuner
             }
 
             return _text.ToString();
+        }
+
+        /// <summary>
+        /// 選択中のテクスチャの元アセットのパス、または持ち帰れない理由を1行で返す。
+        /// </summary>
+        private string BuildAssetLine()
+        {
+            TextureExportSupport support = _session.GetSelectedExportSupport(out TextureManifestEntry entry);
+            if (support != TextureExportSupport.Exportable || entry == null)
+            {
+                return $"Asset: not exportable ({support})";
+            }
+
+            // パスが長い場合は、ファイル名が見えるように末尾を残す。
+            string path = entry.PathHint ?? string.Empty;
+            if (path.Length > MaxPathLength)
+            {
+                path = "..." + path.Substring(path.Length - (MaxPathLength - 3));
+            }
+
+            return $"Asset: {path}";
         }
 
         private string BuildWarningText(bool hasSettings, TextureSamplerSettings adjusted)
@@ -633,6 +670,11 @@ namespace RuntimeTextureTuner
             if (TunerDiagnostics.IsAnisoOverriddenByQuality)
             {
                 _text.AppendLine($"Quality setting ({QualitySettings.anisotropicFiltering}) overrides per-texture aniso.");
+            }
+
+            if (_session.GetSelectedExportSupport(out _) != TextureExportSupport.Exportable)
+            {
+                _text.AppendLine($"Cannot be exported ({_session.GetSelectedExportSupport(out _)}). You can still try values here.");
             }
 
             if (target.HasPropertyBlockUsage)

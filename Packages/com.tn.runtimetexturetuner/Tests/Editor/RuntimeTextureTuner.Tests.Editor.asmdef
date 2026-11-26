@@ -3,8 +3,10 @@
     "rootNamespace": "RuntimeTextureTuner",
     "references": [
         "RuntimeTextureTuner.Core",
+        "RuntimeTextureTuner.Editor",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "RuntimeTextureTuner.DevOnly"
     ],
     "includePlatforms": [
         "Editor"

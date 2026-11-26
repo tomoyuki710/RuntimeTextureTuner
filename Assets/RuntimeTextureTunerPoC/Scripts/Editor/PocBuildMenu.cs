@@ -11,11 +11,6 @@ namespace RuntimeTextureTuner
     /// </summary>
     public static class PocBuildMenu
     {
-        /// <summary>
-        /// 調整機能を有効にするスクリプト定義シンボル。
-        /// </summary>
-        public const string TunerDefine = "RUNTIME_TEXTURE_TUNER_ENABLED";
-
         public const string TuningApkPath = "Builds/PoC/RuntimeTextureTunerPoC.apk";
         public const string PlainApkPath = "Builds/PoCWithoutTuner/RuntimeTextureTunerPoCWithoutTuner.apk";
 
@@ -54,7 +49,7 @@ namespace RuntimeTextureTuner
         /// </summary>
         public static bool BuildTuningApk()
         {
-            return Build(TuningApkPath, new[] { TunerDefine });
+            return Build(TuningApkPath, true);
         }
 
         /// <summary>
@@ -62,10 +57,10 @@ namespace RuntimeTextureTuner
         /// </summary>
         public static bool BuildPlainApk()
         {
-            return Build(PlainApkPath, new string[0]);
+            return Build(PlainApkPath, false);
         }
 
-        private static bool Build(string apkPath, string[] extraDefines)
+        private static bool Build(string apkPath, bool isTuningBuild)
         {
             if (!File.Exists(PocSceneBuilder.ScenePath))
             {
@@ -81,10 +76,10 @@ namespace RuntimeTextureTuner
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,
                 options = BuildOptions.Development,
-                extraScriptingDefines = extraDefines,
             };
 
-            BuildReport report = BuildPipeline.BuildPlayer(options);
+            // 調整用のシンボルは、調整用ビルドのときだけパッケージ側の処理が追加する。
+            BuildReport report = isTuningBuild ? TuningBuild.BuildPlayer(options) : BuildPipeline.BuildPlayer(options);
             BuildSummary summary = report.summary;
             bool isSucceeded = summary.result == BuildResult.Succeeded;
             string message = $"[RuntimeTextureTuner] Build {summary.result}: {apkPath} ({summary.totalSize / (1024 * 1024)} MB, {summary.totalTime.TotalSeconds:0} s, errors {summary.totalErrors})";

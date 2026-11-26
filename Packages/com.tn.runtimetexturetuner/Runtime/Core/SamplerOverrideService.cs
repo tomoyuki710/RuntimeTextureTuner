@@ -134,6 +134,22 @@ namespace RuntimeTextureTuner
         }
 
         /// <summary>
+        /// 採用予定（Keep）になっているテクスチャを登録順に取得する。
+        /// </summary>
+        public void GetKeptTextures(List<Texture> results)
+        {
+            RemoveDestroyedTextures();
+            results.Clear();
+            foreach (Texture texture in _textures)
+            {
+                if (_entries[texture].HasKept)
+                {
+                    results.Add(texture);
+                }
+            }
+        }
+
+        /// <summary>
         /// 採用予定（Keep）になっているテクスチャの数。
         /// </summary>
         public int CountKept()
