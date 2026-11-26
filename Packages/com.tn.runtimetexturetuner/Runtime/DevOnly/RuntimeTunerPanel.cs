@@ -21,7 +21,7 @@ namespace RuntimeTextureTuner
         private const int MaxNameLength = 34;
         private const int MaxRowLength = 46;
         private const int MaxMessageLength = 40;
-        private const int MaxPathLength = 56;
+        private const int MaxPathLength = 46;
         private const float RecommendedMinBias = -0.5f;
         private const float DragBarHeight = 0.065f;
 
