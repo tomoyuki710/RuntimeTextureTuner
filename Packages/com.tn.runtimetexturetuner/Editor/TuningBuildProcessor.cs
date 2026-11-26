@@ -12,9 +12,11 @@ namespace RuntimeTextureTuner
     /// 調整用ビルドのときだけ、ビルド用のシーンコピーにテクスチャの対応表を追加する。
     /// 元のシーンやプレハブは保存しない。調整用でないビルドと Play Mode では何も追加しない。
     /// </summary>
-    internal sealed class TuningBuildProcessor : IProcessSceneWithReport
+    internal sealed class TuningBuildProcessor : IPreprocessBuildWithReport, IProcessSceneWithReport
     {
         private const string LogPrefix = "[RuntimeTextureTuner]";
+
+        private static string _buildId;
 
         // 他の処理がシーンを組み替えた後の、最終的な Renderer とマテリアルを対象にする。
         public int callbackOrder => 10000;
@@ -40,7 +42,23 @@ namespace RuntimeTextureTuner
             AddRegistry(scene, GetBuildId(report));
         }
 
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            // ビルドごとに1つの ID を決め、そのビルドの全シーンの対応表で共有する。
+            _buildId = CreateBuildId(report);
+        }
+
         private static string GetBuildId(BuildReport report)
+        {
+            if (string.IsNullOrEmpty(_buildId))
+            {
+                _buildId = CreateBuildId(report);
+            }
+
+            return _buildId;
+        }
+
+        private static string CreateBuildId(BuildReport report)
         {
             string buildId = report == null ? string.Empty : report.summary.guid.ToString();
             bool isEmpty = string.IsNullOrEmpty(buildId) || buildId.Trim('0').Length == 0;
@@ -49,6 +67,7 @@ namespace RuntimeTextureTuner
 
         private static void AddRegistry(Scene scene, string buildId)
         {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var textures = new List<Texture2D>();
             TextureManifestBuilder.CollectSceneTextures(scene, textures);
 
@@ -69,7 +88,8 @@ namespace RuntimeTextureTuner
             var registryObject = new GameObject(TextureRegistryScene.ObjectName);
             SceneManager.MoveGameObjectToScene(registryObject, scene);
             registryObject.AddComponent<TextureRegistryScene>().Initialize(buildId, entries);
-            Debug.Log($"{LogPrefix} Registry added to the build copy of {scene.path}: {entries.Count} texture(s), {exportableCount} exportable. Build ID: {buildId}");
+            FileFingerprintCache.Save();
+            Debug.Log($"{LogPrefix} Registry added to the build copy of {scene.path}: {entries.Count} texture(s), {exportableCount} exportable, {stopwatch.Elapsed.TotalSeconds:0.0} s. Build ID: {buildId}");
         }
 
         private static int CompareByPath(TextureManifestEntry left, TextureManifestEntry right)

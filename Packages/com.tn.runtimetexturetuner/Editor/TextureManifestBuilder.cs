@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -80,27 +78,12 @@ namespace RuntimeTextureTuner
         }
 
         /// <summary>
-        /// ファイルの内容の SHA-256 を 16 進文字列で返す。ファイルがない場合は空文字列を返す。
+        /// ファイルの内容の指紋を 16 進文字列で返す。ファイルがない場合は空文字列を返す。
+        /// 計算結果は保存され、ファイルのサイズと更新日時が変わらない限り使い回される。
         /// </summary>
         public static string ComputeFileFingerprint(string path)
         {
-            if (!File.Exists(path))
-            {
-                return string.Empty;
-            }
-
-            using (SHA256 sha256 = SHA256.Create())
-            using (FileStream stream = File.OpenRead(path))
-            {
-                byte[] hash = sha256.ComputeHash(stream);
-                var builder = new StringBuilder(hash.Length * 2);
-                foreach (byte value in hash)
-                {
-                    builder.Append(value.ToString("x2"));
-                }
-
-                return builder.ToString();
-            }
+            return FileFingerprintCache.GetFingerprint(path);
         }
 
         /// <summary>

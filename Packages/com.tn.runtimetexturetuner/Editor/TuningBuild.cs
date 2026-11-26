@@ -58,6 +58,37 @@ namespace RuntimeTextureTuner
         }
 
         /// <summary>
+        /// 調整用のシンボルを持つ Build Profile でプレイヤーをビルドする。Build Profile 自体は変更しない。
+        /// Build Profile のスクリプト定義シンボルに <see cref="Define"/> が含まれていない場合は例外を投げる。
+        /// </summary>
+        public static BuildReport BuildPlayer(BuildPlayerWithProfileOptions options)
+        {
+            BuildProfile profile = options.buildProfile;
+            bool hasDefine = profile != null && profile.scriptingDefines != null && Array.IndexOf(profile.scriptingDefines, Define) >= 0;
+            if (!hasDefine)
+            {
+                throw new ArgumentException($"The build profile must have the scripting define '{Define}'.");
+            }
+
+            // Build Profile を指定してビルドすると、Unity はそのプロファイルをアクティブにしたままにする。
+            // ビルドの前後でエディタの状態が変わらないよう、終わったら元のプロファイルへ戻す。
+            BuildProfile previousProfile = BuildProfile.GetActiveBuildProfile();
+            _isBuildingTuningPlayer = true;
+            try
+            {
+                return BuildPipeline.BuildPlayer(options);
+            }
+            finally
+            {
+                _isBuildingTuningPlayer = false;
+                if (BuildProfile.GetActiveBuildProfile() != previousProfile)
+                {
+                    BuildProfile.SetActiveBuildProfile(previousProfile);
+                }
+            }
+        }
+
+        /// <summary>
         /// いま行っているビルドが調整用かどうか。このクラスからのビルドのほか、
         /// Player Settings やアクティブな Build Profile にシンボルが設定されている場合も調整用とみなす。
         /// </summary>
