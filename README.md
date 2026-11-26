@@ -6,6 +6,10 @@ VR の実機でコンテンツを動かしたまま、テクスチャごとの M
 
 実機で決めた値は JSON として PC に持ち帰り、Unity Editor で確認してから `TextureImporter` に反映します。調整用の機能は、専用のシンボルを付けたビルドにだけ含まれます。
 
+![動作確認用のシーンで調整パネルを開いたところ](Images/panel-in-scene.png)
+
+*動作確認用のシーンで調整パネルを開き、床のテクスチャを選んだところ。画像は Unity Editor の Play Mode で撮影したものです。*
+
 ## 動作を確認した環境
 
 | 項目 | 内容 |
@@ -63,6 +67,14 @@ Input System、XR Interaction Toolkit、各社の XR SDK には依存しませ�
 6. `Hide panel` でパネルを隠して見え方を確かめます。調整値は維持されます。
 7. `Export kept` を押すと、Keep した値がアプリのデータ領域に JSON で保存されます。
 
+![調整パネル](Images/panel.png)
+
+*調整パネル。左が選んだ物のテクスチャの一覧、右が選んだテクスチャの情報と調整項目です。元アセットのパス、元の値と調整値、注意（ここでは -0.5 より強い負の Bias）が表示されます。*
+
+![元の値と調整後の比較](Images/compare.png)
+
+*約 24 m 先の文字の壁。左が元の値（Bias 0、Aniso 1）、右が調整後（Bias -0.7、Aniso 8）です。PICO 4 Ultra に近い画素密度（約 20 画素/度）で Unity Editor 上に描画し、3 倍に拡大しています。実機の見え方とは異なります。*
+
 対象の選択は Renderer の Bounds との交差で行うため、Collider や Layer の設定は不要です。Bounds は箱による近似なので、遮蔽や重なりは区別できません。候補の一覧から選んで確定してください。
 
 ### 3. Editor に反映する
@@ -72,6 +84,10 @@ Input System、XR Interaction Toolkit、各社の XR SDK には依存しませ�
 3. 一覧で、現在の値、実機で調整した値、状態を確認します。
 4. 反映する行を選び、`Apply selected` を押します。
 5. 元に戻す場合は `Restore last Apply` を押します。
+
+![Sessions ウィンドウ](Images/sessions-window.png)
+
+*Sessions ウィンドウ。テクスチャごとに、現在のインポート設定、実機で調整した値、変更した項目、状態が並びます。*
 
 変更されるのは `mipMapBias`、`anisoLevel`、`filterMode` のうち、実機で変えた項目だけです。ソース画像、最大サイズ、圧縮形式などは変更しません。この 3 項目は全プラットフォーム共通のインポート設定なので、Android 以外のプラットフォームにも影響します。
 

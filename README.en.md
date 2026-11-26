@@ -6,6 +6,10 @@ A development tool for tuning per-texture Mip Map Bias, Aniso Level and Filter M
 
 The values you settle on are brought back to the PC as JSON, reviewed in the Unity Editor, and then applied to `TextureImporter`. The tuning features are included only in builds made with a dedicated scripting define.
 
+![The tuning panel opened in the sample scene](Images/panel-in-scene.png)
+
+*The tuning panel opened in the sample scene, with a floor texture selected. Captured in Play Mode in the Unity Editor.*
+
 ## Tested environment
 
 | Item | Details |
@@ -63,6 +67,14 @@ In a tuning build, a table that maps textures to their source assets is added to
 6. Press `Hide panel` to check the result without the panel. The adjusted values stay in effect.
 7. Press `Export kept` to save the kept values as JSON in the app's data folder.
 
+![The tuning panel](Images/panel.png)
+
+*The tuning panel. The left side lists the textures of the selected object. The right side shows the selected texture and its controls: the source asset path, the original and adjusted values, and warnings (here, a negative bias stronger than -0.5).*
+
+![Original and adjusted values compared](Images/compare.png)
+
+*A text wall about 24 m away. Left: original values (Bias 0, Aniso 1). Right: adjusted values (Bias -0.7, Aniso 8). Rendered in the Unity Editor at a pixel density close to PICO 4 Ultra (about 20 pixels per degree) and enlarged 3x. It does not reproduce what you see on the device.*
+
 Targets are selected by intersecting the ray with renderer bounds, so no colliders or layer setup are required. Bounds are box approximations, so occlusion and overlapping objects cannot be told apart. Confirm the target from the candidate list.
 
 ### 3. Apply in the Editor
@@ -72,6 +84,10 @@ Targets are selected by intersecting the ray with renderer bounds, so no collide
 3. Review the current values, the values adjusted on the device, and the status of each row.
 4. Select the rows to apply and press `Apply selected`.
 5. To undo, press `Restore last Apply`.
+
+![The Sessions window](Images/sessions-window.png)
+
+*The Sessions window. Each row shows a texture's current import settings, the values adjusted on the device, the changed fields, and the status.*
 
 Only the fields you changed on the device are written, out of `mipMapBias`, `anisoLevel` and `filterMode`. Source images, max size, compression format and other settings are not touched. These three fields are import settings shared by all platforms, so the change also affects platforms other than Android.
 
