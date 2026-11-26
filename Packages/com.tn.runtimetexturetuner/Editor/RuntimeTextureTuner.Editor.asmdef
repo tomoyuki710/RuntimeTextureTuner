@@ -2,7 +2,7 @@
     "name": "RuntimeTextureTuner.Editor",
     "rootNamespace": "RuntimeTextureTuner",
     "references": [
-        "RuntimeTextureTuner"
+        "RuntimeTextureTuner.Core"
     ],
     "includePlatforms": [
         "Editor"

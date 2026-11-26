@@ -1,0 +1,22 @@
+{
+    "name": "RuntimeTextureTuner.PoC.Editor",
+    "rootNamespace": "RuntimeTextureTuner",
+    "references": [
+        "RuntimeTextureTuner.Core",
+        "RuntimeTextureTuner.PoC",
+        "Unity.InputSystem",
+        "Unity.XR.CoreUtils",
+        "Unity.XR.Interaction.Toolkit"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

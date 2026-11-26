@@ -1,9 +1,7 @@
 {
-    "name": "RuntimeTextureTuner",
+    "name": "RuntimeTextureTuner.Core",
     "rootNamespace": "RuntimeTextureTuner",
-    "references": [
-        "Unity.XR.PICO"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -11,12 +9,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.xr.picoxr",
-            "expression": "",
-            "define": "RUNTIMETEXTURETUNER_PICO"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }
