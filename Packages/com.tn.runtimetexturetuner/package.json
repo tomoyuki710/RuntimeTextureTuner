@@ -5,5 +5,9 @@
   "description": "Tune per-texture Mip Map Bias, Aniso Level and Filter Mode on a VR device without rebuilding, then apply the kept values to TextureImporter in the Editor. The tuning code is included only in builds with RUNTIME_TEXTURE_TUNER_ENABLED.",
   "unity": "6000.0",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.vr": "1.0.0",
+    "com.unity.modules.xr": "1.0.0"
+  }
 }
