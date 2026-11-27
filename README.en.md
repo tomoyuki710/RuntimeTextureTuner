@@ -32,7 +32,7 @@ https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.run
 To pin a version, append a tag to the URL.
 
 ```
-https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.1.0
+https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.2.0
 ```
 
 The package does not depend on the Input System, the XR Interaction Toolkit, or any vendor XR SDK.

@@ -1,6 +1,6 @@
 {
   "name": "com.tn.runtimetexturetuner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Runtime Texture Tuner",
   "description": "Tune per-texture Mip Map Bias, Aniso Level and Filter Mode on a VR device without rebuilding, then apply the kept values to TextureImporter in the Editor. The tuning code is included only in builds with RUNTIME_TEXTURE_TUNER_ENABLED.",
   "unity": "6000.0",

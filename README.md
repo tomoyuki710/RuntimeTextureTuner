@@ -32,7 +32,7 @@ https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.run
 バージョンを固定する場合は、URL の末尾にタグを付けます。
 
 ```
-https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.1.0
+https://github.com/tomoyuki710/RuntimeTextureTuner.git?path=/Packages/com.tn.runtimetexturetuner#v0.2.0
 ```
 
 Input System、XR Interaction Toolkit、各社の XR SDK には依存しません。
